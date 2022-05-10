@@ -7,6 +7,7 @@ const WondersFinanceAddr = "0x6dF579FF0525B7eb42096B60c3D78A80891CB859";
 const Lend = () => {
   const [toggle, setToggle] = useState(false);
   const [amount, setAmount] = useState("");
+  const [tvl, setTvl] = useState("");
 
   const deposit = async amount => {
     const provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -20,6 +21,22 @@ const Lend = () => {
     const tx = await contract.deposit(options);
     tx.wait();
   };
+
+  const getTvl = async () => {
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const signer = provider.getSigner();
+    const contract = new ethers.Contract(
+      WondersFinanceAddr,
+      WondersFinanceABI.abi,
+      signer
+    );
+    const tx = await contract.tvl();
+    setTvl(ethers.utils.formatEther(tx._hex));
+  };
+
+  useEffect(() => {
+    getTvl();
+  }, []);
 
   return (
     <div className="flex w-full justify-center items-center">
@@ -42,7 +59,7 @@ const Lend = () => {
           </div>
           <p className="py-2 px-4">~8.66 $1DER/day</p>
           <p className="py-2 px-4">100.00%</p>
-          <p className="py-2 px-4">1,000,000 ETH</p>
+          <p className="py-2 px-4">{tvl} ETH</p>
           <button
             className="cursor-pointer bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded"
             onClick={() => setToggle(true)}
